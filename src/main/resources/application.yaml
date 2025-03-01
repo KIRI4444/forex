@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: abc
+    username: abc
+    password: abc
+    driver-class-name: org.postgresql.Driver
+#  liquibase:
+#    change-log: classpath:/liquibase/changesets/db.changelog.yaml
+#    enabled: true
+#    default-schema: challenge_arena
+security:
+  jwt:
+    secret: abc
+    access: 3600000
+    refresh: 2592000000
