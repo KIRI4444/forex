@@ -20,7 +20,7 @@ public class ProfileServiceImpl implements ProfileService {
     @Override
     @Transactional(readOnly = true)
     public Profile getById(Long id) {
-        return profileRepository.findById(id).
+        return profileRepository.findProfileByUserId(id).
                 orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
     }
 

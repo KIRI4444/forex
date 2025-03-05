@@ -4,7 +4,7 @@ import com.example.domain.Profile.Profile;
 
 public interface ProfileService {
 
-    Profile getById(Long id);
+    Profile getById(Long userId);
 
     Profile getByUsername(String username);
 

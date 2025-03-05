@@ -15,4 +15,12 @@ public interface ProfileRepository extends JpaRepository<Profile, Long> {
         WHERE u.username = :username
         """, nativeQuery = true)
     Optional<Profile> findByUsername(@Param("username") String username);
+
+    @Query(value = """
+            SELECT p.*
+            FROM profiles p
+            JOIN users u ON p.user_id = u.id
+            where u.id = p.user_id
+            """, nativeQuery = true)
+    Optional<Profile> findProfileByUserId(@Param("userId") Long userId);
 }
