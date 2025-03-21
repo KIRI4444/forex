@@ -9,18 +9,19 @@ import java.util.Optional;
 
 public interface ProfileRepository extends JpaRepository<Profile, Long> {
     @Query(value = """
-        SELECT p.* 
+        SELECT p.*, pp.photo
         FROM profiles p 
-        JOIN users u ON p.user_id = u.id 
+        JOIN users u ON p.user_id = u.id
+        JOIN profile_photos pp ON pp.profile_id = p.id
         WHERE u.username = :username
         """, nativeQuery = true)
     Optional<Profile> findByUsername(@Param("username") String username);
 
     @Query(value = """
-            SELECT p.*
+            SELECT p.*, pp.photo
             FROM profiles p
-            JOIN users u ON p.user_id = u.id
-            where u.id = p.user_id
+            JOIN profile_photos pp ON pp.profile_id = p.id
+            where p.user_id = :userId
             """, nativeQuery = true)
     Optional<Profile> findProfileByUserId(@Param("userId") Long userId);
 }

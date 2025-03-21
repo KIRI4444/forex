@@ -1,5 +1,6 @@
 package com.example.domain.Profile;
 
+import com.example.domain.ProfilePhoto.ProfilePhoto;
 import com.example.domain.user.User;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -22,6 +23,8 @@ public class Profile implements Serializable {
     private String name;
     private int age;
     private String description;
-    private int sex;
+    private Integer sex;
 
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
+    private ProfilePhoto photo;
 }

@@ -1,12 +1,17 @@
 package com.example.web.controllers;
 
 import com.example.domain.Profile.Profile;
+import com.example.domain.response.ApiResponse;
 import com.example.service.ProfileService;
 import com.example.web.dto.profile.ProfileDTO;
 import com.example.web.mappers.ProfileMapper;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/v1/profile")
@@ -29,17 +34,23 @@ public class ProfileController {
         return profileMapper.toDto(profile);
     }
 
-    @PostMapping("/create")
-    public ProfileDTO createProfile(@RequestBody ProfileDTO profileDTO, @RequestParam Long userId) {
-        Profile profile = profileMapper.toEntity(profileDTO);
-        Profile savedProfile = profileService.create(profile, userId);
-        return profileMapper.toDto(savedProfile);
-    }
-
     @PostMapping("/edit")
     public ProfileDTO editProfile(@RequestBody ProfileDTO profileDTO, @RequestParam Long userId) {
         Profile profile = profileMapper.toEntity(profileDTO);
         Profile changedProfile = profileService.update(profile, userId);
         return profileMapper.toDto(changedProfile);
+    }
+
+    @PostMapping("/photo/{userId}")
+    public ApiResponse<String> uploadProfilePhoto(@PathVariable Long userId, @RequestParam("file") MultipartFile file) {
+        try {
+            profileService.setProfilePhoto(userId, file);
+            String photo = profileService.getProfilePhoto(userId);
+            ApiResponse<String> response = new ApiResponse<>("Profile photo uploaded successfully", photo);
+            return response;
+        } catch (Exception e) {
+            ApiResponse<String> response = new ApiResponse<>("Failed to upload photo", null);
+            return response;
+        }
     }
 }

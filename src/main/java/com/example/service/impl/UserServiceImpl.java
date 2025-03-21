@@ -1,8 +1,12 @@
 package com.example.service.impl;
 
+import com.example.domain.Profile.Profile;
+import com.example.domain.ProfilePhoto.ProfilePhoto;
 import com.example.domain.exception.ResourceNotFoundException;
 import com.example.domain.user.Role;
 import com.example.domain.user.User;
+import com.example.repository.ProfilePhotoRepository;
+import com.example.repository.ProfileRepository;
 import com.example.repository.UserRepository;
 import com.example.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +21,8 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
+    private final ProfilePhotoRepository profilePhotoRepository;
+    private final ProfileRepository profileRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -57,8 +63,23 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         Set<Role> roles = Set.of(Role.ROLE_USER);
         user.setRoles(roles);
-        userRepository.save(user);
 
+        Profile profile = new Profile();
+        profile.setName(null);
+        profile.setSex(null);
+        profile.setDescription(null);
+        profile.setPhoto(null);
+
+        ProfilePhoto profilePhoto = new ProfilePhoto();
+        profilePhoto.setPhoto(null);
+        profilePhoto.setProfile(profile);
+        profile.setPhoto(profilePhoto);
+        user.setProfile(profile);
+        profile.setUser(user);
+
+        userRepository.save(user);
+        profileRepository.save(profile);
+        profilePhotoRepository.save(profilePhoto);
         return user;
     }
 

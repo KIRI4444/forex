@@ -1,6 +1,9 @@
 package com.example.service;
 
 import com.example.domain.Profile.Profile;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 public interface ProfileService {
 
@@ -10,5 +13,7 @@ public interface ProfileService {
 
     Profile update(Profile profile, Long userId);
 
-    Profile create(Profile profile, Long userId);
+    void setProfilePhoto(Long userId, MultipartFile file) throws IOException;
+
+    String getProfilePhoto(Long userId);
 }

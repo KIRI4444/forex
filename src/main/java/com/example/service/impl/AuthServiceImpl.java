@@ -36,7 +36,7 @@ public class AuthServiceImpl implements AuthService {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
         } catch (Exception e) {
-            throw new RuntimeException("Ошибка аутентификации", e);
+            throw new RuntimeException("Authentication error", e);
         }
         User user = userService.getByUsername(loginRequest.getUsername());
         jwtResponse.setId(user.getId());
