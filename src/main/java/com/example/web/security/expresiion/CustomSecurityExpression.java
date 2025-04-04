@@ -21,7 +21,7 @@ public class CustomSecurityExpression {
         JwtEntity user = (JwtEntity) authentication.getPrincipal();
         Long userId = user.getId();
 
-        return userId.equals(id) || hasAnyRole(authentication, Role.ROLE_ADMIN);
+        return userId.equals(id);
     }
 
     private boolean hasAnyRole(Authentication authentication, Role... roles) {

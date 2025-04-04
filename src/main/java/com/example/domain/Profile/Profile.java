@@ -1,6 +1,6 @@
 package com.example.domain.Profile;
 
-import com.example.domain.ProfilePhoto.ProfilePhoto;
+import com.example.domain.ProfilePhoto;
 import com.example.domain.user.User;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -8,7 +8,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "profiles")
+@Table(name = "profiles",  schema = "forex")
 @Data
 public class Profile implements Serializable {
 

@@ -2,6 +2,7 @@ package com.example.service.impl;
 
 import com.example.domain.CoinGeckoAPI.CoinGeckoResponse;
 import com.example.domain.CoinGeckoAPI.coin.CoinMarketInfo;
+import com.example.domain.CoinGeckoAPI.coin.MarketData;
 import com.example.domain.CoinGeckoAPI.search.CoinSearch;
 import com.example.domain.CoinGeckoAPI.search.CoinSearchApiResponse;
 import com.example.domain.CoinGeckoAPI.top10.Coin;
@@ -121,9 +122,33 @@ public class CoinsServiceImpl implements CoinsService {
 
         try {
             Response<CoinMarketInfo> response = call.execute();
+            CoinMarketInfo coinMarketInfo = response.body();
+
+            long totalVolume = coinMarketInfo.getMarket_data().getTotal_volume().getUsd();
+            long marketCap = coinMarketInfo.getMarket_data().getMarket_cap().getUsd();
+            String formattedMarketCap = formatNumber(marketCap);
+            String formattedTotalVolume = formatNumber(totalVolume);
+
+            MarketData marketData = coinMarketInfo.getMarket_data();
+            marketData.setFormatted_total_volume(formattedTotalVolume);
+            marketData.setFormatted_market_cap(formattedMarketCap);
+
             return parseResponse(response);
         } catch (Exception e) {
             return new CoinGeckoResponse<>(null, false, "Network error: " + e.getMessage());
         }
     }
+
+    public static String formatNumber(long num) {
+        if (num >= 1_000_000_000) {
+            return String.format("%.2fB", num / 1_000_000_000.0).replaceAll("\\.?0*B$", "B");
+        } else if (num >= 1_000_000) {
+            return String.format("%.2fM", num / 1_000_000.0).replaceAll("\\.?0*M$", "M");
+        } else if (num >= 1_000) {
+            return String.format("%.2fK", num / 1_000.0).replaceAll("\\.?0*K$", "K");
+        } else {
+            return Long.toString(num);
+        }
+    }
+
 }

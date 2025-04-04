@@ -1,14 +1,20 @@
 package com.example.service.impl;
 
 import com.example.domain.Profile.Profile;
-import com.example.domain.ProfilePhoto.ProfilePhoto;
+import com.example.domain.ProfilePhoto;
 import com.example.domain.exception.ResourceNotFoundException;
+import com.example.domain.response.ApiResponse;
 import com.example.domain.user.User;
 import com.example.repository.ProfilePhotoRepository;
 import com.example.repository.ProfileRepository;
 import com.example.repository.UserRepository;
 import com.example.service.ProfileService;
+import com.example.web.dto.user.FindUserDto;
+import com.example.web.utils.Util;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -41,13 +47,22 @@ public class ProfileServiceImpl implements ProfileService {
 
     @Override
     @Transactional
-    public Profile update(Profile updatedProfile, Long userId) {
+    public Profile update(Profile updatedProfile) {
+        Long userId = Util.getCurrentUserId();
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         Profile existingProfile = user.getProfile();
         if (existingProfile == null) {
             throw new ResourceNotFoundException("Profile not found for user with ID: " + userId);
+        }
+
+        if (updatedProfile.getName() != null && !updatedProfile.getName().equals(existingProfile.getName())) {
+            boolean isNameTaken = profileRepository.existsByName(updatedProfile.getName());
+            if (isNameTaken) {
+                throw new IllegalStateException("Username already exists");
+            }
+            existingProfile.setName(updatedProfile.getName());
         }
 
         existingProfile.setName(updatedProfile.getName());
@@ -91,9 +106,18 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     @Override
+    @Transactional
     public String getProfilePhoto(Long userId) {
         Profile profile = profileRepository.findProfileByUserId(userId).
                 orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
         return profile.getPhoto().getPhoto();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ApiResponse<?> findUsers(String query, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<FindUserDto> result = profileRepository.searchByName(query, pageable);
+        return new ApiResponse<>("Users found", result.getContent());
     }
 }

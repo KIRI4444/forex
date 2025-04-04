@@ -1,8 +1,12 @@
 package com.example.service.impl;
 
 import com.example.domain.GoogleAuth.GoogleAuthUser;
+import com.example.domain.Profile.Profile;
+import com.example.domain.ProfilePhoto;
 import com.example.domain.user.Role;
 import com.example.domain.user.User;
+import com.example.repository.ProfilePhotoRepository;
+import com.example.repository.ProfileRepository;
 import com.example.repository.UserRepository;
 import com.example.service.AuthService;
 import com.example.service.UserService;
@@ -29,6 +33,8 @@ public class AuthServiceImpl implements AuthService {
     private final UserService userService;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
+    private final ProfileRepository profileRepository;
+    private final ProfilePhotoRepository profilePhotoRepository;
 
     @Override
     public JwtResponse login(JwtRequest loginRequest) {
@@ -54,23 +60,29 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public GoogleIdToken.Payload verifyToken(String idTokenString) {
+        System.out.println("idTokenString: " + idTokenString);
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
                 new com.google.api.client.http.javanet.NetHttpTransport(),
                 new com.google.api.client.json.gson.GsonFactory()
         )
                 .setAudience(Collections.singletonList(
-                        "259962957478-f0vp622okbc19vrmqm96cdatgmhj104f.apps.googleusercontent.com"))
+                        "407772935914-jvr3iej6ik922cv0rip2mdl36b5bc0jo.apps.googleusercontent.com"))
                 .build();
 
         try {
+            System.out.println("try rabotaet");
+            System.out.println("Verifying token with client_id: " + verifier.getAudience());
             GoogleIdToken idToken = verifier.verify(idTokenString);
             if (idToken != null) {
+                System.out.println("Valid ID token: " + idToken.getPayload());
                 return idToken.getPayload();
             } else {
-                System.out.println("Invalid ID token.");
+                System.out.println("Invalid ID token received from client.");
                 return null;
             }
         } catch (GeneralSecurityException | IOException e) {
+            System.out.println("catch rabotaet");
+            System.err.println("Error during token verification: " + e.getMessage());
             e.printStackTrace();
             return null;
         }
@@ -89,19 +101,43 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public User UserFirstLogin(GoogleIdToken.Payload payload) {
+        if(userRepository.findByUsername(payload.getEmail()).isPresent()) {
+            throw new IllegalStateException("Email already exists");
+        }
+
         User user = new User();
         user.setUsername(payload.getEmail());
         user.setPassword(null);
         user.setPasswordConfirmation(null);
+
         Set<Role> roles = Set.of(Role.ROLE_USER);
         user.setRoles(roles);
-        userRepository.save(user);
 
+        Profile profile = new Profile();
+        profile.setName(null);
+        profile.setSex(null);
+        profile.setDescription(null);
+        profile.setPhoto(null);
+
+        ProfilePhoto profilePhoto = new ProfilePhoto();
+        profilePhoto.setPhoto(null);
+        profilePhoto.setProfile(profile);
+        profile.setPhoto(profilePhoto);
+        user.setProfile(profile);
+        profile.setUser(user);
+
+        userRepository.save(user);
+        profileRepository.save(profile);
+        profilePhotoRepository.save(profilePhoto);
         return user;
     }
 
     @Override
     public JwtResponse loginWithGoogle(GoogleAuthUser googleAuthUser) {
+        if (googleAuthUser.getToken() == null ) {
+            throw new IllegalArgumentException("Invalid Google token");
+        }
+
         GoogleIdToken.Payload payload = verifyToken(googleAuthUser.getToken());
 
         if (payload == null) {
@@ -113,6 +149,7 @@ public class AuthServiceImpl implements AuthService {
             User user = userService.getByUsername(payload.getEmail());
             return generateJwtResponse(user);
         }
+
         // Если первый вход
         else {
             User user = UserFirstLogin(payload);

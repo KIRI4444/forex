@@ -1,29 +1,33 @@
+
 spring:
   datasource:
-    url: abc
-    username: abc
-    password: abc
+    url: ...
+    username: ...
+    password: ...
     driver-class-name: org.postgresql.Driver
   security:
     oauth2:
       client:
         registration:
           google:
-            client-id: abc
-            client-secret: abc
+            client-id: ...
+            client-secret: ...
   servlet:
     multipart:
       enabled: true
       max-file-size: 10MB
-#  liquibase:
-#    change-log: classpath:/liquibase/changesets/db.changelog.yaml
-#    enabled: true
-#    default-schema: challenge_arena
+liquibase:
+enabled: false
+default-schema: forex
 security:
   jwt:
-    secret: abc
+    secret: ...
     access: 3600000
     refresh: 2592000000
 logging:
   level:
     org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+server:
+  port: 8080

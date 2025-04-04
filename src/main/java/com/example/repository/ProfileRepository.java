@@ -1,6 +1,9 @@
 package com.example.repository;
 
 import com.example.domain.Profile.Profile;
+import com.example.web.dto.user.FindUserDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -24,4 +27,11 @@ public interface ProfileRepository extends JpaRepository<Profile, Long> {
             where p.user_id = :userId
             """, nativeQuery = true)
     Optional<Profile> findProfileByUserId(@Param("userId") Long userId);
+
+    @Query("SELECT NEW com.example.web.dto.user.FindUserDto(p.name, p.user.id, p.photo.photo) " +
+            "FROM Profile p " +
+            "WHERE p.name LIKE %:query%")
+    Page<FindUserDto> searchByName(@Param("query") String query, Pageable pageable);
+
+    boolean existsByName(String name);
 }

@@ -1,11 +1,11 @@
-package com.example.domain.ProfilePhoto;
+package com.example.domain;
 
 import com.example.domain.Profile.Profile;
 import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
-@Table(name = "profile_photos")
+@Table(name = "profile_photos",  schema = "forex")
 @Data
 public class ProfilePhoto {
     @Id

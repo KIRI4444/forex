@@ -1,15 +1,20 @@
 package com.example.service.impl;
 
 import com.example.domain.Profile.Profile;
-import com.example.domain.ProfilePhoto.ProfilePhoto;
+import com.example.domain.ProfilePhoto;
 import com.example.domain.exception.ResourceNotFoundException;
+import com.example.domain.response.ApiResponse;
 import com.example.domain.user.Role;
 import com.example.domain.user.User;
 import com.example.repository.ProfilePhotoRepository;
 import com.example.repository.ProfileRepository;
 import com.example.repository.UserRepository;
 import com.example.service.UserService;
+import com.example.web.dto.user.FindUserDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -88,5 +93,4 @@ public class UserServiceImpl implements UserService {
     public void delete(Long id) {
         userRepository.deleteById(id);
     }
-
 }

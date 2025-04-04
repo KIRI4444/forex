@@ -1,0 +1,23 @@
+services:
+  forex-db:
+    image: postgres:15.1-alpine
+    container_name: postgres1
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=Ktmvil12
+      - POSTGRES_DB=forex
+    volumes:
+      - ./src/main/resources/db-init:/docker-entrypoint-initdb.d
+  app:
+    image: kiri4444/forex:latest
+    container_name: forex
+    depends_on:
+      - forex-db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://forex-db:5432/forex?currentSchema=forex
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=Ktmvil12
+    ports:
+      - '8080:8080'

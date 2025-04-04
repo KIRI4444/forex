@@ -3,6 +3,7 @@ package com.example.service;
 import com.example.domain.CoinGeckoAPI.coin.CoinMarketInfo;
 import com.example.domain.CoinGeckoAPI.top10.Coin;
 import com.example.domain.CoinGeckoAPI.search.CoinSearchApiResponse;
+import org.springframework.stereotype.Service;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
@@ -10,6 +11,7 @@ import retrofit2.http.Query;
 
 import java.util.List;
 
+@Service
 public interface CoinGeckoApiService {
 
     @GET("coins/markets")
